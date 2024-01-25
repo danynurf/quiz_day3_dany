@@ -2,6 +2,11 @@
 
 require_once "view.php";
 
-$homeView = new HomeView();
-
-$homeView->showMainMenu();
+$main = new class
+{
+    public function __construct()
+    {
+        $homeView = new HomeView();
+        $homeView->showMainMenu();
+    }
+};

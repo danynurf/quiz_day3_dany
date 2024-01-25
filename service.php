@@ -32,16 +32,14 @@ class ProductionService
     public function findProductionIDbyPhase(NikiShoes $nikiShoes, string $prodID, string $phase)
     {
         $productions = $nikiShoes->getProductions();
-        $idx = -1;
 
-        for($i = 0; $i < count($productions); $i++)
-        {
-            if($productions[$i]->getPhase() == $phase && $productions[$i]->getID() == $prodID)
-            {
-                $idx = $i;
+        for($i = 0; $i < count($productions); $i++) {
+            if(
+                $productions[$i]->getPhase() == $phase && $productions[$i]->getID() == $prodID) {
+                return $i;
             }
         }
-        return $idx;
+        return -1;
     }
 
     public function updateProductionPhase(NikiShoes $nikiShoes, string $prodID, int $idx)
@@ -72,6 +70,105 @@ class ProductionService
                 $production->setPhase('Finish');
                 break;
         }
+    }
+}
+
+class DistributionService
+{
+    public function validateDistributionPhase(NikiShoes $nikiShoes, string $phase)
+    {
+        $distributions = $nikiShoes->getDistributions();
+
+        foreach($distributions as $dis) {
+            if($dis->getPhase() == $phase) return false;
+        }
+        return true;
+    }
+
+    public function findDistributionByPhase(NikiShoes $nikiShoes, string $phase, string $id)
+    {
+        $distributions = $nikiShoes->getDistributions();
+
+        for($i = 0; $i < count($distributions); $i++) {
+            if($distributions[$i]->getPhase() == $phase && $distributions[$i]->getID() == $id) {
+                return $i;
+            }
+        }
+        return -1;
+    }
+
+    public function getDistributionPhase(int $phase)
+    {
+        switch ($phase) {
+            case 1: return 'Packing';
+            case 2: return 'On Delivery';
+        }
+    }
+    
+    public function validateDistribution(NikiShoes $nikiShoes, string $storeID)
+    {
+        $distributions = $nikiShoes->getDistributions();
+        for($i = 0; $i < count($distributions); $i++) {
+            $store = $distributions[$i]->getStore();
+            if($store->getStoreID() == $storeID && $distributions[$i]->getPhase() == 'Packing') {
+                return $i;
+            }
+        }
+        return -1;
+    }
+
+    public function updateDistributionPhase(NikiShoes $nikiShoes, string $id, int $idx)
+    {
+        $phase = $nikiShoes->getDistributions()[$idx]->getPhase();
+
+        switch ($phase) {
+            case 'Packing': return 'On Delivery';
+            case 'On Delivery': return 'Arrived';
+        }
+    }
+}
+
+class StoreService
+{
+    public function findStoreByID(NikiShoes $nikiShoes, string $storeID)
+    {
+        $stores = $nikiShoes->getStores();
+
+        for($i = 0; $i < count($stores); $i++) {
+            if($storeID == $stores[$i]) return $i;
+        }
+
+        return -1;
+    }
+
+    public function findShoeInStore(NikiShoes $nikiShoes, Store $store, string $modelName)
+    {
+        $shoes = $store->getShoes();
+
+        for($i = 0; $i < count($shoes); $i++) {
+            if($shoes[$i]->getModelName() == $modelName) return $i;
+        }
+        return -1;
+    }
+
+    public function validateStoreID(NikiShoes $nikiShoes, string $id)
+    {
+        $stores = $nikiShoes->getStores();
+        foreach($stores as $store) {
+            if($store->getStoreID() == $id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function validateShoeModelName(NikiShoes $nikiShoes, Store $store, string $modelName)
+    {
+        $shoes = $store->getShoes();
+        for($i = 0; $i < count($shoes); $i++) {
+            if($shoes[$i]->getModelName == $modelName) return $i;
+        }
+        return -1;
     }
 }
 
